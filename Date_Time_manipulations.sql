@@ -5,6 +5,7 @@ Blog: tomaztsql.wordpress.com
 Author: Tomaz TSQL
 Date: 03.SEPT.2018
 
+Version 1.0 - 03.09.2018 - Adding the file
 
 ********************************************* */
 
