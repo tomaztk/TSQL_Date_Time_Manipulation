@@ -32,7 +32,6 @@ SELECT
 	,CAST(GETDATE() AS INT) % 400  -- if modulo = 0 (equals to zero), year is a leap year
 	,CAST(GETDATE()-800 AS INT) % 400  -- if modulo = 0 (equals to zero), year is a leap year
 	
-select getdate()-800
 
 -- Using Date format
 SELECT
