@@ -54,7 +54,7 @@ SELECT
 	,DATEADD(MONTH,DATEDIFF(MONTH,-1,GETDATE()),0) AS NextMonth_startOf
 
 SELECT 
-	 EOMONTH(GETDATE()) AS CurrentMonthEnd,
+	 EOMONTH(GETDATE()) AS CurrentMonthEnd
     ,EOMONTH(GETDATE(), -1) AS PreviousMonthEnd
     ,EOMONTH(GETDATE(), 1) AS NextMonthEnd
 
