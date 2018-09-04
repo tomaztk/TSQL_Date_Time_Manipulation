@@ -109,65 +109,48 @@ SELECT
 
 
 -- Number of business / working days between two dates
+SET DATEFIRST 1;
 DECLARE @dayFrom SMALLDATETIME = '20180901'
 DECLARE @dayTO SMALLDATETIME = '20180905'
 
 SELECT
-   (DATEDIFF(DAY, @dayFrom, @dayTO) + 1)-(DATEDIFF(WEEK, @dayFrom, @dayTO) * 2)-(CASE WHEN DATENAME(dw, @dayFrom) IN ('Sunday') THEN 1 ELSE 0 END)-(CASE WHEN DATENAME(dw, @dayTO) IN ('Saturday') THEN 1 ELSE 0 END) AS NumberOfWorkingDays
+   (DATEDIFF(DAY, @dayFrom, @dayTO) + 1)-(DATEDIFF(WEEK, @dayFrom, @dayTO) * 2)-(CASE WHEN DATEPART(WEEKDAY, @dayFrom) = 7 THEN 1 ELSE 0 END)-(CASE WHEN DATEPART(WEEKDAY, @dayTO) = 6 THEN 1 ELSE 0 END) AS NumberOfWorkingDays
 
 
 -- Number of working hours between two dates
+SET DATEFIRST 1;
 DECLARE @dayFromDateTime SMALLDATETIME = '2018-09-01 12:33:11.245'
 DECLARE @dayTODateTime SMALLDATETIME = '2018-09-05 09:33:32.256'
+DECLARE @hourFrom INT = 8
+DECLARE @hourTo INT = 16
+
+;WITH cte
+AS
+(SELECT
+	  DATEADD(MINUTE, -1, @dayFromDateTime) AS StartDate
+	 ,0 AS WorkDayFlag
+	 ,0 AS WorkHourFlag
+
+UNION ALL
 
 SELECT
-   (DATEDIFF(HOUR, @dayTODateTime, @dayTODateTime) + 1)-(DATEDIFF(WEEK, @dayFromDateTime, @dayTODateTime) * 2)-(CASE WHEN DATENAME(dw, @dayFromDateTime) IN ('Sunday') THEN 1 ELSE 0 END)-(CASE WHEN DATENAME(dw, @dayTODateTime) IN ('Saturday') THEN 1 ELSE 0 END) AS NumberOfWorkingDays
-
-
-   -- Number of working hours between two dates
-DECLARE @from SMALLDATETIME = '2018-09-01 12:33:11.245'
-DECLARE @to SMALLDATETIME = '2018-09-05 09:33:32.256'
-
+	 DATEADD(MINUTE, 1, StartDate) AS StartDate
+	,CASE WHEN DATEPART(WEEKDAY, DATEADD(MINUTE, 1, StartDate)) IN (1,2,3,4,5) THEN 1 ELSE 0 END AS WorkDayFlag
+	,CASE WHEN DATEPART(HOUR, DATEADD(MINUTE, 1, StartDAte)) BETWEEN @hourFrom AND @hourTo-1 THEN 1 ELSE 0 END AS WorkHourFlag
+	FROM cte
+	WHERE
+		StartDate <= @dayTODateTime
+)
 SELECT
-	datediff(hour, @from, @to)
-	,datediff(day, @from, @to)+1
-	,DATEDIFF(minute, @to, @from) / 60.0 - DATEDIFF(day,  @to, @from) * 16 - DATEDIFF(week, @to, @from) * 16 AS WorkingHours
+ SUM(CASE WHEN WorkDayFlag = 1 AND WorkHourFlag = 1 THEN 1 ELSE 0 END) AS nofWorkingMinutes
+,SUM(CASE WHEN WorkDayFlag = 1 AND WorkHourFlag = 1 THEN 1 ELSE 0 END)*1.0/60 AS nofWorkingHours
+FROM cte 
+OPTION (maxRecursion 10000)
 
 
 
 
-/*
-DECLARE @TotalWorkDays INT, @TotalTimeDiff DECIMAL(18, 2), @DateFrom DATETIME, @DateTo DATETIME;
-SET @DateFrom = '2018-09-01 12:33:11.245'
-SET @DateTo = '2018-09-05 09:33:32.256'
- 
-SET @TotalWorkDays = DATEDIFF(DAY, @DateFrom, @DateTo)
-				    -(DATEDIFF(WEEK, @DateFrom, @DateTo) * 2)
-					   -CASE
-                                    WHEN DATENAME(WEEKDAY, @DateFrom) = 'Sunday'
-                                    THEN 1
-                                    ELSE 0
-                                END+CASE
-                                        WHEN DATENAME(WEEKDAY, @DateTo) = 'Saturday'
-                                        THEN 1
-                                        ELSE 0
-                                    END;
 
-PRINT @TotalWorkDays
-SET @TotalTimeDiff =
-(
-    SELECT DATEDIFF(SECOND,
-                   (
-                       SELECT CONVERT(TIME, @DateFrom)
-                   ),
-                   (
-                       SELECT CONVERT(TIME, @DateTo)
-                   )) / 3600.0
-);
-
-
-SELECT(@TotalWorkDays * 24.00) + @TotalTimeDiff;
- */
 
 
 -----------------------------------------------
