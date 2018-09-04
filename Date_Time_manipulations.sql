@@ -30,6 +30,7 @@ SELECT
 	 ISDATE('2019/02/29') AS CheckLeapYear -- if 1, date exists and this year is a leap year; if 0 date does not exists and is not leap year
 	,CASE WHEN (YEAR(GETDATE()) % 4 = 0 AND YEAR(GETDATE()) % 100 <> 0) OR YEAR(GETDATE()) % 400 = 0 THEN 'Leap Year' ELSE 'Non Leap Year' END AS CheckLeapYear
 
+
 -- Using Date format
 SELECT
 	CAST(GETDATE() AS DATE) AS Date_RightNow
@@ -73,15 +74,35 @@ SELECT
 -- return the date on today in a month
 SELECT
 	DATEADD(MONTH, DATEDIFF(MONTH, -1, (GETDATE())), DAY(GETDATE()-1)) AS OneMonthFromNow
-   ,CAST(DATEADD(MONTH, 1, CAST(GETDATE() AS DATE)) AS SMALLDATETIME) AS OneMonthFromNow2
+   ,CAST(DATEADD(MONTH, 1, CAST(GETDATE() AS DATE)) AS DATETIME) AS OneMonthFromNow
 
 
 SELECT
-	DATEADD(DAY, DATEDIFF(DAY, -1, GETDATE()), 365) AS OneYearFromNow
-		       , dateadd(day, datediff(day, -1, (getdate())), 365) as toèno_èez_eno_leto_od_danes
+	CAST(DATEADD(YEAR, 1, CAST(GETDATE() AS DATE)) AS DATETIME) AS OneYearFromNow
+   ,DATEADD(DAY, DATEDIFF(DAY, 0, (GETDATE())), 365) AS OneYearFromNow
+
+
+
+-----------------------------------------------
+-----------------------------------------------
+-- 3. Differences in dates
+-----------------------------------------------
+-----------------------------------------------
+
+-- Number of days until ...
+SELECT
+	 (DATEDIFF(DAY, GETDATE(), DATEADD(WEEK, DATEDIFF(WEEK, -1, (GETDATE())), 0)))-1 AS NumberOfDaysUntilEndOfWeek
+	,(DATEDIFF(DAY, GETDATE(), DATEADD(MONTH, DATEDIFF(MONTH, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfMonth
+	,(DATEDIFF(DAY, GETDATE(), DATEADD(YEAR, DATEDIFF(YEAR, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfYear
+
 
 -----------------------------------------------
 -----------------------------------------------
 -- 3. Starting with simple time
 -----------------------------------------------
 -----------------------------------------------
+
+
+
+SELECT
+      (DATEDIFF(DAY, GETDATE(), DATEADD(WEEK, DATEDIFF(WEEK, -1, (GETDATE())), 1)))-1
