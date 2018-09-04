@@ -1,5 +1,5 @@
 # TSQL_Date_Time_Manipulation
-T-SQL Date and Time manipulation
+T-SQL Date and Time manipulation. More on blog[tomaztsql.wordpress.com\5075]. (URL: tomaztsql.wordpress.com)
 
 This is a set of T-SQL Date and Time functions for manipulating date and time formats in T-SQL. 
 Some of them have proven to be very useful, most of them also very used. 
