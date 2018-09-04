@@ -35,11 +35,18 @@ SELECT
 SELECT 
 	DATENAME(WEEKDAY, GETDATE()) AS [DayName]
    ,DATENAME(MONTH, GETDATE()) AS [MonthName]
+   ,DATEPART(WEEK, GETDATE()) AS [WeekNumber]
+   ,DATEPART(ISO_WEEK, GETDATE()) AS [ISO_WeekNumber]
 
 
--- Using Date format
+-- Using Date format or FORMAT or CAST / CONVERT
 SELECT
 	CAST(GETDATE() AS DATE) AS Date_RightNow
+	,FORMAT(GETDATE(), 'dd/MM/yyyy') AS DATE_dd_MM_yyyy
+	,FORMAT(GETDATE(), 'yyyy-MM-dd') AS DATE_yyyy_MM_dd
+	,FORMAT(GETDATE(), 'MM-dd') AS DATE_MM_dd
+	,FORMAT(GETDATE(), 'dd/MM/yyyy', 'en-US' ) AS DATE_US 
+	,FORMAT(GETDATE(), 'dd/MM/yyyy', 'sl-SI' ) AS DATE_SLO
 
 -- Days
 SELECT
@@ -101,7 +108,41 @@ SELECT
 	,(DATEDIFF(DAY, GETDATE(), DATEADD(YEAR, DATEDIFF(YEAR, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfYear
 
 
--- Number of business / working days
+-- Number of business / working days between two dates
+DECLARE @dayFrom SMALLDATETIME = '20180901'
+DECLARE @dayTO SMALLDATETIME = '20180905'
+
+SELECT
+   (DATEDIFF(DAY, @dayFrom, @dayTO) + 1)-(DATEDIFF(WEEK, @dayFrom, @dayTO) * 2)-(CASE WHEN DATENAME(dw, @dayFrom) IN ('Sunday') THEN 1 ELSE 0 END)-(CASE WHEN DATENAME(dw, @dayTO) IN ('Saturday') THEN 1 ELSE 0 END) AS NumberOfWorkingDays
+,DATEPART(day,@dayFROM)
+
+
+
+
+-----------------------------------------------
+-----------------------------------------------
+-- 5. Date functions
+-----------------------------------------------
+-----------------------------------------------
+
+
+SET LANGUAGE us_english;
+SELECT DATENAME(WEEKDAY, '20190904') [US_English];
+ 
+SET LANGUAGE Slovenian;
+SELECT DATENAME(WEEKDAY, '20180904') [Slovenian];
+
+
+-- Starting week with day
+SET LANGUAGE Slovenian;  
+SELECT @@DATEFIRST AS weekStart;  
+
+SET LANGUAGE us_english;  
+SELECT @@DATEFIRST AS WeekStart;  
+
+
+--OR
+SET DATEFIRST 1; -- week starts with monday
 
 -----------------------------------------------
 -----------------------------------------------
@@ -114,7 +155,7 @@ SELECT
 	,DATEADD(WEEK, DATEDIFF(WEEK, '18991231', GETDATE()), '19000106') as ToCurrentWeek 
 
 
-
 SELECT	
-	 DATEADD(WEEK, DATEDIFF(WEEK, '19000101', GETDATE()), '18991231') as FromCurrentMonth
-	,DATEADD(WEEK, DATEDIFF(WEEK, '18991231', GETDATE()), '19000106') as ToCurrentMonth
+	 CAST(DATEADD(DAY, 1, EOMONTH(GETDATE(),-1)) AS DATETIME) AS FromCurrentMonth
+	,CAST(EOMONTH(GETDATE()) AS DATETIME) AS ToCurrentMonth
+
