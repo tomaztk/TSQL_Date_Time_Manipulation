@@ -31,6 +31,12 @@ SELECT
 	,CASE WHEN (YEAR(GETDATE()) % 4 = 0 AND YEAR(GETDATE()) % 100 <> 0) OR YEAR(GETDATE()) % 400 = 0 THEN 'Leap Year' ELSE 'Non Leap Year' END AS CheckLeapYear
 
 
+-- Name of Days, Months
+SELECT 
+	DATENAME(WEEKDAY, GETDATE()) AS [DayName]
+   ,DATENAME(MONTH, GETDATE()) AS [MonthName]
+
+
 -- Using Date format
 SELECT
 	CAST(GETDATE() AS DATE) AS Date_RightNow
@@ -91,18 +97,24 @@ SELECT
 
 -- Number of days until ...
 SELECT
-	 (DATEDIFF(DAY, GETDATE(), DATEADD(WEEK, DATEDIFF(WEEK, -1, (GETDATE())), 0)))-1 AS NumberOfDaysUntilEndOfWeek
-	,(DATEDIFF(DAY, GETDATE(), DATEADD(MONTH, DATEDIFF(MONTH, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfMonth
+	 (DATEDIFF(DAY, GETDATE(), DATEADD(MONTH, DATEDIFF(MONTH, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfMonth
 	,(DATEDIFF(DAY, GETDATE(), DATEADD(YEAR, DATEDIFF(YEAR, -1, (GETDATE())), 0)))-1 AS NumberOfDAysUntilEndOfYear
 
 
+-- Number of business / working days
+
 -----------------------------------------------
 -----------------------------------------------
--- 3. Starting with simple time
+-- 4. Date intervals
 -----------------------------------------------
 -----------------------------------------------
 
+SELECT	
+	 DATEADD(WEEK, DATEDIFF(WEEK, '19000101', GETDATE()), '18991231') as FromCurrentWeek
+	,DATEADD(WEEK, DATEDIFF(WEEK, '18991231', GETDATE()), '19000106') as ToCurrentWeek 
 
 
-SELECT
-      (DATEDIFF(DAY, GETDATE(), DATEADD(WEEK, DATEDIFF(WEEK, -1, (GETDATE())), 1)))-1
+
+SELECT	
+	 DATEADD(WEEK, DATEDIFF(WEEK, '19000101', GETDATE()), '18991231') as FromCurrentMonth
+	,DATEADD(WEEK, DATEDIFF(WEEK, '18991231', GETDATE()), '19000106') as ToCurrentMonth
