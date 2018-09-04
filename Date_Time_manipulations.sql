@@ -27,11 +27,8 @@ SELECT
 
 -- Is Leap Year (we check for presence/existence of 29.Feb)
 SELECT
-	 ISDATE('2016/02/29') AS CheckLeapYear -- if 0, date does not exists and is not leap year
-	,ISDATE('2019/02/29') AS CheckLeapYear -- if 1, date exists and this year is a leap year
-	,CAST(GETDATE() AS INT) % 400  -- if modulo = 0 (equals to zero), year is a leap year
-	,CAST(GETDATE()-800 AS INT) % 400  -- if modulo = 0 (equals to zero), year is a leap year
-	
+	 ISDATE('2019/02/29') AS CheckLeapYear -- if 1, date exists and this year is a leap year; if 0 date does not exists and is not leap year
+	,CASE WHEN (YEAR(GETDATE()) % 4 = 0 AND YEAR(GETDATE()) % 100 <> 0) OR YEAR(GETDATE()) % 400 = 0 THEN 'Leap Year' ELSE 'Non Leap Year' END AS CheckLeapYear
 
 -- Using Date format
 SELECT
