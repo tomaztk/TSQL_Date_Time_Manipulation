@@ -2,7 +2,9 @@
 
 T-SQL DATE / TIME Manipulations
 Blog: tomaztsql.wordpress.com
-Author: Tomaz TSQL
+Code: github.com/tomaztk/TSQL_Date_time_Manipulation
+Author: Tomaz Kastrun
+Twitter: @tomaz_tsql
 Date: 03.SEPT.2018
 
 Version 1.0 - 03.09.2018 - Adding the file
