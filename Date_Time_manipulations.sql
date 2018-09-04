@@ -168,6 +168,11 @@ SELECT
 	,DATEADD(DAY,-1,DATEADD(QUARTER, DATEDIFF(QUARTER, -1, (GETDATE())), 0)) as ToEndCurrentQuarter
 	
 
+--Last days
+SELECT 
+	DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE()),0)) AS LastDayOfPreviousMonth
+	,DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+1,0)) AS LastDayOfCurrentMonth
+	,DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+2,0)) AS LastDayOfNextMonth
 
 
 -----------------------------------------------
@@ -196,7 +201,8 @@ SELECT @@DATEFIRST AS WeekStart;
 -- datefirst or @@datefirst
 SET DATEFIRST 1; -- week starts with monday
 
-
+SET DATEFORMAT ymd;
+SET DATEFORMAT dmy;
 
 -----------------------------------------------
 -----------------------------------------------
@@ -222,6 +228,7 @@ SELECT
 	,CONVERT(VARCHAR(12),GETDATE(),114)  AS Time_standardFormat
 	,GETUTCDATE() AS TimeUTC_RightNow
 	,SYSDATETIME() AS SystemDateTime
+	,CONVERT(VARCHAR(10), CAST(GETDATE() AS TIME(0)), 100) AS SimpleAM_PM
 
 SELECT
 	 FORMAT(cast(GETDATE() AS TIME), N'hh\.mm') AS timeFormatDot
@@ -235,20 +242,96 @@ SELECT
 -----------------------------------------------
 -----------------------------------------------
 
-
+-- seconds/milliseconds to time format
 DECLARE @MilliSec INT = 55433
-select convert(varchar,dateadd(ms,@MilliSec,0),114)
+DECLARE @Sec INT = 532
+
+SELECT 
+	 CONVERT(VARCHAR(10),DATEADD(ms,@MilliSec,0),114) AS MilliSecToTime --format hh:mm:ss:nnn
+    ,CONVERT(VARCHAR(10),DATEADD(s,@Sec,0),114) AS SecToTime --format hh:mm:ss:nnn
 
 
 
----PRETVORI SEKUNDE V URNI ZAPIS
-declare @int as int
-set @int = 10000 --3624
+-- Converting seconds to time readable format
+DECLARE @seconds INT = 10000
 
-select 
- @int
-,@int/86400 as D
-,@int/3600 as H
-,@int/60 as M
-,CONVERT(varchar, DATEADD(ms, @int * 1000, 0), 114)
-,CONVERT(varchar, DATEADD(ms, 121.25 * 1000, 0), 114)
+SELECT
+	 @seconds AS NumberOfSeconds
+	,@seconds/86400 AS NumberOfDays
+	,@seconds/3600 As NumberOfHours
+	,@seconds/60 AS NumberMinutes
+	,CONVERT(VARCHAR, DATEADD(ms, @seconds * 1000, 0), 114) AS FormatedTime
+
+
+
+-----------------------------------------------
+-----------------------------------------------
+-- 8. VARCHAR / DECIMAL/FLOAT to time formats
+-----------------------------------------------
+-----------------------------------------------
+
+-- Using Decimal data type
+DECLARE @test_DTY TABLE
+(id int
+,KA2_DATE decimal (8,0)
+,KA2_TIME decimal (6,0)
+)
+
+INSERT INTO @test_DTY
+		  SELECT 1, 20180905,	110951
+UNION ALL SELECT 2, 20180905,	113407
+UNION ALL SELECT 3, 20180905,	063407
+
+SELECT
+ id
+,KA2_DATE AS OriginalDate
+,KA2_TIME AS OriginalDate --Note leading zeros will not be presented as this is decimal data type
+
+,RIGHT(CAST(KA2_DATE AS VARCHAR(8)),2) + '/' + SUBSTRING(CAST(KA2_DATE AS VARCHAR(8)),5,2) + '/' + LEFT(CAST(KA2_DATE AS VARCHAR(8)),4) AS DateFormated_dd_MM_yyyy
+,LEFT(CAST(REPLICATE('0', 6 - LEN(CAST(KA2_TIME AS VARCHAR(6)))) AS VARCHAR(1)) + CAST(CAST(KA2_TIME AS VARCHAR(6)) AS VARCHAR(6)),2) + ':' 
+           + SUBSTRING(CAST(REPLICATE('0', 6 - LEN(CAST(KA2_TIME AS VARCHAR(6)))) AS VARCHAR(1)) + CAST(CAST(KA2_TIME AS VARCHAR(6)) AS VARCHAR(6)),3,2) + ':' 
+		   + RIGHT(CAST(REPLICATE('0', 6 - LEN(CAST(KA2_TIME AS VARCHAR(6)))) AS VARCHAR(1)) + CAST(CAST(KA2_TIME AS VARCHAR(6)) AS VARCHAR(6)),2) AS Time_formatted_hh_mm_ss
+FROM @test_DTY
+
+
+
+-- Using String data Type (Varchar)
+
+DECLARE @temp TABLE
+(
+	Ddate VARCHAR(20)
+)
+
+INSERT INTO @temp (Ddate)
+		  SELECT '3.11.2017 14:55:53'   
+UNION ALL SELECT '12.11.2018 22:39:49' 
+UNION ALL SELECT '12.8.2018 22:39:49' 
+UNION ALL SELECT '2.3.2018 22:39:49' 
+UNION ALL SELECT '12.8.2018 7:39:49' 
+UNION ALL SELECT '12.8.2018 7:09:49' 
+
+
+SELECT 
+	 Ddate AS OriginalDateFormatInVarchar
+	,PARSENAME(Ddate,3) AS DayFromVarchar
+	,PARSENAME(Ddate,2) AS MonthFromVarchar
+	,LEFT(PARSENAME(Ddate,1),4) AS YearFromVarchar
+	,REPLACE(SUBSTRING(Ddate, CHARINDEX(' ', Ddate), CHARINDEX(':', Ddate)),':','') AS TimeFromVarchar
+
+	,CAST(CAST(LEFT(PARSENAME(Ddate,1),4) AS CHAR(4)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,2) AS VARCHAR(2)))) + 
+			   CAST(PARSENAME(Ddate,2) AS VARCHAR(2)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,3) AS VARCHAR(2)))) + 
+			   CAST(PARSENAME(Ddate,3) AS VARCHAR(2)) AS INT) AS DateFormattedFromVarchar --Leading zeros corrected!
+
+	,CAST(CAST(LEFT(PARSENAME(Ddate,1),4) AS CHAR(4)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,2) AS VARCHAR(2)))) + 
+				CAST(PARSENAME(Ddate,2) AS VARCHAR(2)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,3) AS VARCHAR(2)))) + 
+				CAST(PARSENAME(Ddate,3) AS VARCHAR(2)) AS SMALLDATETIME) AS DateFormattedFromVarcharToSmallDateTime
+	
+	,CAST(CAST(left(PARSENAME(Ddate,1),4) AS CHAR(4)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,2) AS VARCHAR(2)))) + 
+		   CAST(PARSENAME(Ddate,2) AS VARCHAR(2)) + REPLICATE ('0', 2 - LEN(CAST(PARSENAME(Ddate,3) AS VARCHAR(2)))) + 
+		   CAST(PARSENAME(Ddate,3) AS VARCHAR(2)) +  REPLICATE('0', 6 - LEN(
+			CAST(LTRIM(RTRIM(REPLACE(SUBSTRING(Ddate, CHARINDEX(' ', Ddate), CHARINDEX(':', Ddate)),':',''))) AS VARCHAR(6)))) +
+			CAST(LTRIM(RTRIM(REPLACE(SUBSTRING(Ddate, CHARINDEX(' ', Ddate), CHARINDEX(':', Ddate)),':',''))) AS VARCHAR(6))
+				AS VARCHAR(14)) AS DateAndTimeFormatFromVarchar
+
+FROM @temp
+ORDER BY 8 ASC
