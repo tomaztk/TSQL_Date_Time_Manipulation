@@ -114,9 +114,60 @@ DECLARE @dayTO SMALLDATETIME = '20180905'
 
 SELECT
    (DATEDIFF(DAY, @dayFrom, @dayTO) + 1)-(DATEDIFF(WEEK, @dayFrom, @dayTO) * 2)-(CASE WHEN DATENAME(dw, @dayFrom) IN ('Sunday') THEN 1 ELSE 0 END)-(CASE WHEN DATENAME(dw, @dayTO) IN ('Saturday') THEN 1 ELSE 0 END) AS NumberOfWorkingDays
-,DATEPART(day,@dayFROM)
 
 
+-- Number of working hours between two dates
+DECLARE @dayFromDateTime SMALLDATETIME = '2018-09-01 12:33:11.245'
+DECLARE @dayTODateTime SMALLDATETIME = '2018-09-05 09:33:32.256'
+
+SELECT
+   (DATEDIFF(HOUR, @dayTODateTime, @dayTODateTime) + 1)-(DATEDIFF(WEEK, @dayFromDateTime, @dayTODateTime) * 2)-(CASE WHEN DATENAME(dw, @dayFromDateTime) IN ('Sunday') THEN 1 ELSE 0 END)-(CASE WHEN DATENAME(dw, @dayTODateTime) IN ('Saturday') THEN 1 ELSE 0 END) AS NumberOfWorkingDays
+
+
+   -- Number of working hours between two dates
+DECLARE @from SMALLDATETIME = '2018-09-01 12:33:11.245'
+DECLARE @to SMALLDATETIME = '2018-09-05 09:33:32.256'
+
+SELECT
+	datediff(hour, @from, @to)
+	,datediff(day, @from, @to)+1
+	,DATEDIFF(minute, @to, @from) / 60.0 - DATEDIFF(day,  @to, @from) * 16 - DATEDIFF(week, @to, @from) * 16 AS WorkingHours
+
+
+
+
+/*
+DECLARE @TotalWorkDays INT, @TotalTimeDiff DECIMAL(18, 2), @DateFrom DATETIME, @DateTo DATETIME;
+SET @DateFrom = '2018-09-01 12:33:11.245'
+SET @DateTo = '2018-09-05 09:33:32.256'
+ 
+SET @TotalWorkDays = DATEDIFF(DAY, @DateFrom, @DateTo)
+				    -(DATEDIFF(WEEK, @DateFrom, @DateTo) * 2)
+					   -CASE
+                                    WHEN DATENAME(WEEKDAY, @DateFrom) = 'Sunday'
+                                    THEN 1
+                                    ELSE 0
+                                END+CASE
+                                        WHEN DATENAME(WEEKDAY, @DateTo) = 'Saturday'
+                                        THEN 1
+                                        ELSE 0
+                                    END;
+
+PRINT @TotalWorkDays
+SET @TotalTimeDiff =
+(
+    SELECT DATEDIFF(SECOND,
+                   (
+                       SELECT CONVERT(TIME, @DateFrom)
+                   ),
+                   (
+                       SELECT CONVERT(TIME, @DateTo)
+                   )) / 3600.0
+);
+
+
+SELECT(@TotalWorkDays * 24.00) + @TotalTimeDiff;
+ */
 
 
 -----------------------------------------------
