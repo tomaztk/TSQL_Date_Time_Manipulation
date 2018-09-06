@@ -7,7 +7,7 @@ Author: Tomaz Kastrun
 Twitter: @tomaz_tsql
 Date: 03.SEPT.2018
 
-Version 1.0 - 03.09.2018 - Adding the file
+Version 1.0 - 03.09.2018 - Adding the file to git
 
 ********************************************* */
 
