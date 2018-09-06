@@ -203,8 +203,24 @@ SELECT @@DATEFIRST AS WeekStart;
 -- datefirst or @@datefirst
 SET DATEFIRST 1; -- week starts with monday
 
+
+-- Example with  September 5th, 2018
+-- Possible formats:  mdy, dmy, ymd, ydm, myd, and dym. 
+DROP TABLE IF EXISTS #dateformats
+CREATE TABLE #dateformats (dd SMALLDATETIME
+						   ,ddFormat VARCHAR(10))
+
+SET DATEFORMAT mdy;
+INSERT INTO #dateformats  VALUES ('09/06/2018', 'mdy');
 SET DATEFORMAT ymd;
+INSERT INTO #dateformats  VALUES ('2018/09/07', 'ymd');
 SET DATEFORMAT dmy;
+INSERT INTO #dateformats  VALUES ('08/09/2018', 'ymd');
+
+SELECT 
+	 dd AS InsertedDate
+	,ddFormat AS InsertedDateFormat
+FROM #dateformats
 
 -----------------------------------------------
 -----------------------------------------------
