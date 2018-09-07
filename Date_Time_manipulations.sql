@@ -8,6 +8,7 @@ Twitter: @tomaz_tsql
 Date: 03.SEPT.2018
 
 Version 1.0 - 03.09.2018 - Adding the file to git
+Version 1.1 - 07.09.2018 - Adding Fiscal Years
 
 ********************************************* */
 
@@ -30,6 +31,7 @@ SELECT
 -- Is Leap Year (we check for presence/existence of 29.Feb)
 SELECT
 	 ISDATE('2019/02/29') AS CheckLeapYear -- if 1, date exists and this year is a leap year; if 0 date does not exists and is not leap year
+	 -- Author of this example is Dan Guzman. Thank you Dan.
 	,CASE WHEN (YEAR(GETDATE()) % 4 = 0 AND YEAR(GETDATE()) % 100 <> 0) OR YEAR(GETDATE()) % 400 = 0 THEN 'Leap Year' ELSE 'Non Leap Year' END AS CheckLeapYear
 
 
@@ -353,3 +355,29 @@ SELECT
 
 FROM @temp
 ORDER BY 8 ASC
+
+
+
+-----------------------------------------------
+-----------------------------------------------
+-- 9. Calculating Fiscal Years
+-----------------------------------------------
+-----------------------------------------------
+
+-- a) it start on April 1 and runs for 364,25 days until March 31 of next year 
+-- b) it starts on October 1 and runs for 364,25 days until September 30 of next year
+
+
+SELECT
+-- Fiscal Year Apr-Mar
+     CASE WHEN MONTH(GETDATE()) >= 4 THEN YEAR(GETDATE()) ELSE DATEPART(year,DATEADD(Year,-1,GETDATE())) END AS StartOfFiscalYearYear
+	,CASE WHEN MONTH(GETDATE()) >= 4 THEN YEAR(GETDATE())+1 ELSE YEAR(GETDATE()) END AS EndOfFiscalYearYear
+	,CASE WHEN MONTH(GETDATE()) >= 4 THEN CAST(CONCAT(CAST(YEAR(GETDATE()) AS VARCHAR),'/04/01') AS DATE)  ELSE CAST(CONCAT(CAST(DATEPART(year,DATEADD(Year,-1,GETDATE())) AS VARCHAR),'/04/01') AS DATE)  END AS StartOfFiscalYearDateTime
+	,CASE WHEN MONTH(GETDATE()) >= 4 THEN CAST(CONCAT(CAST(YEAR(dateadd(year,1,getdate())) AS VARCHAR),'/03/31') AS DATE) ELSE CAST(CONCAT(CAST(YEAR(GETDATE()) AS VARCHAR),'/03/31') AS DATE) END AS EndOfFiscalYearDateTime
+-- Fiscal Year Oct-Sep
+    ,CASE WHEN MONTH(GETDATE()) >= 10 THEN YEAR(GETDATE()) ELSE DATEPART(year,DATEADD(Year,-1,GETDATE())) END AS StartOfFiscalYearYear
+	,CASE WHEN MONTH(GETDATE()) >= 10 THEN YEAR(GETDATE())+1 ELSE YEAR(GETDATE()) END AS EndOfFiscalYearYear
+	,CASE WHEN MONTH(GETDATE()) >= 10 THEN CAST(CONCAT(CAST(YEAR(GETDATE()) AS VARCHAR),'/10/01') AS DATE)  ELSE CAST(CONCAT(CAST(DATEPART(year,DATEADD(Year,-1,GETDATE())) AS VARCHAR),'/10/01') AS DATE)  END AS StartOfFiscalYearDateTime
+	,CASE WHEN MONTH(GETDATE()) >= 10 THEN CAST(CONCAT(CAST(YEAR(dateadd(year,1,getdate())) AS VARCHAR),'/09/30') AS DATE) ELSE CAST(CONCAT(CAST(YEAR(GETDATE()) AS VARCHAR),'/09/30') AS DATE) END AS EndOfFiscalYearDateTime
+
+
